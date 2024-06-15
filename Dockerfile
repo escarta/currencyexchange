@@ -1,5 +1,5 @@
-FROM eclipse-temurin:21-jdk-focal
+FROM eclipse-temurin:21-jdk
 WORKDIR /app
-COPY target/CurrencyExchangeApplication-0.0.1-SNAPSHOT.jar app.jar
+COPY target/currencyexchange-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app/app.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
