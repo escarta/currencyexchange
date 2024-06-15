@@ -1,2 +1,0 @@
-# currencyexchange
-BitPanda Currency Exchange
