@@ -1,0 +1,55 @@
+openapi: 3.0.0
+info:
+  title: Currency Exchange API
+  version: 1.0.0
+paths:
+  /exchange-rate:
+    get:
+      summary: Get exchange rate
+      parameters:
+        - in: query
+          name: currency1
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: currency2
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  currency1:
+                    type: string
+                  currency2:
+                    type: string
+                  exchangeRate:
+                    type: string
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  message:
+                    type: string

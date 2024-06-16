@@ -1,6 +1,8 @@
 package com.scartascini.currencyexchange.controller;
 
 import com.scartascini.currencyexchange.exception.GlobalExceptionHandler;
+import com.scartascini.currencyexchange.model.ErrorResponse;
+import com.scartascini.currencyexchange.model.ExchangeRateResponse;
 import com.scartascini.currencyexchange.service.CurrencyExchangeService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,11 +17,13 @@ import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ControllerTest {
 
     private MockMvc mockMvc;
     private AutoCloseable mocks;
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Mock
     private CurrencyExchangeService currencyExchangeService;
@@ -42,28 +46,37 @@ public class ControllerTest {
 
     @Test
     public void testGetCurrencyExchange() throws Exception {
+        ExchangeRateResponse response = new ExchangeRateResponse("BTC", "EUR", "61805.45");
         when(currencyExchangeService.getExchangeRate("BTC", "EUR")).thenReturn("61805.45");
 
-        mockMvc.perform(get("/").param("currency1", "BTC").param("currency2", "EUR"))
+        String expectedResponse = objectMapper.writeValueAsString(response);
+
+        mockMvc.perform(get("/exchange-rate/").param("currency1", "BTC").param("currency2", "EUR"))
                 .andExpect(status().isOk())
-                .andExpect(content().string("61805.45"));
+                .andExpect(content().json(expectedResponse));
     }
 
     @Test
     public void testGetCurrencyExchangeCurrencyNotFound() throws Exception {
         when(currencyExchangeService.getExchangeRate("ETH", "EUR")).thenThrow(new IllegalArgumentException("Currency ETH not found"));
 
-        mockMvc.perform(get("/").param("currency1", "ETH").param("currency2", "EUR"))
+        ErrorResponse errorResponse = new ErrorResponse("Bad Request", "Currency ETH not found");
+        String expectedResponse = objectMapper.writeValueAsString(errorResponse);
+
+        mockMvc.perform(get("/exchange-rate/").param("currency1", "ETH").param("currency2", "EUR"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Currency ETH not found"));
+                .andExpect(content().json(expectedResponse));
     }
 
     @Test
     public void testGetCurrencyExchangeRateNotFound() throws Exception {
         when(currencyExchangeService.getExchangeRate("BTC", "GBP")).thenThrow(new IllegalArgumentException("Exchange rate for BTC to GBP not found"));
 
-        mockMvc.perform(get("/").param("currency1", "BTC").param("currency2", "GBP"))
+        ErrorResponse errorResponse = new ErrorResponse("Bad Request", "Exchange rate for BTC to GBP not found");
+        String expectedResponse = objectMapper.writeValueAsString(errorResponse);
+
+        mockMvc.perform(get("/exchange-rate/").param("currency1", "BTC").param("currency2", "GBP"))
                 .andExpect(status().isBadRequest())
-                .andExpect(content().string("Exchange rate for BTC to GBP not found"));
+                .andExpect(content().json(expectedResponse));
     }
 }

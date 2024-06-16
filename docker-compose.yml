@@ -5,7 +5,4 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_PROFILES_ACTIVE=prod
-    volumes:
-      - ./config:/config
-      - ./logs:/logs
+      - SPRING_PROFILES_ACTIVE=default
